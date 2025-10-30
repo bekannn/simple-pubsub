@@ -11,12 +11,17 @@ interface ISubscriber {
 interface IPublishSubscribeService {
   publish (event: IEvent): void;
   subscribe (type: string, handler: ISubscriber): void;
-  //unsubscribe (type: string): void; // Question 2
+  unsubscribe (type: string, handler: ISubscriber): void; // Question 2
 }
 
 // Question 1
 class PublishSubscripeService implements IPublishSubscribeService {
   private events_subscriber: Map<String, ISubscriber[]> = new Map();
+  constructor() {
+    this.publish = this.publish.bind(this);
+    this.subscribe = this.subscribe.bind(this);
+    this.unsubscribe = this.unsubscribe.bind(this);
+  }
 
   publish(event: IEvent): void {
     const subs = this.events_subscriber.get(event.type()) || [];
@@ -30,6 +35,12 @@ class PublishSubscripeService implements IPublishSubscribeService {
     const subs = this.events_subscriber.get(type) || [];
     subs.push(handler); // Add new event handler
     this.events_subscriber.set(type, subs); // Set the new handler array
+  }
+
+  unsubscribe(type: string, handler: ISubscriber): void {
+      const subs = this.events_subscriber.get(type) || [];
+      const newSubs = subs.filter(h => h !== handler); // Create a new array without the specific handler
+      this.events_subscriber.set(type, newSubs);
   }
 
 }
@@ -58,7 +69,7 @@ class MachineRefillEvent implements IEvent {
     return this._machineId;
   }
 
-  getReFillQuantity(): number {
+  getRefillQuantity(): number {
     return this._refill;
   }
 
@@ -77,9 +88,9 @@ class MachineSaleSubscriber implements ISubscriber {
   handle(event: MachineSaleEvent): void {
     const machine = this.machines.find(m => m.id === event.machineId());
     if (machine) {
-      const sold_number = event.getSoldQuantity();
-      machine.stockLevel -= sold_number;
-      console.log(`[Sale] There was ${sold_number} item solds for machine #${machine.id}.`)
+      const soldNumber = event.getSoldQuantity();
+      machine.stockLevel -= soldNumber;
+      console.log(`[Sale] There were ${soldNumber} items sold for machine #${machine.id}.`)
     }
   }
 }
@@ -95,9 +106,9 @@ class MachineRefillSubscriber implements ISubscriber {
   handle(event: MachineRefillEvent): void {
     const machine = this.machines.find(m => m.id === event.machineId());
     if (machine) {
-      const refill_number = event.getReFillQuantity();
+      const refill_number = event.getRefillQuantity();
       machine.stockLevel += refill_number;
-      console.log(`[Refill] There was ${refill_number} item refilled to machine #${machine.id}.`)
+      console.log(`[Refill] There were ${refill_number} items refilled to machine #${machine.id}.`)
     }
   }
 }
@@ -130,11 +141,11 @@ const eventGenerator = (): IEvent => {
   const random = Math.random();
   if (random < 0.5) {
     const saleQty = Math.random() < 0.5 ? 1 : 2; // 1 or 2
-    console.log('new SALE event')
+    console.log(`[SALE] New event: Quantity ${saleQty}`);
     return new MachineSaleEvent(saleQty, randomMachine());
   } 
   const refillQty = Math.random() < 0.5 ? 3 : 5; // 3 or 5
-  console.log('new REFILL event')
+  console.log(`[REFILL] New event: Quantity ${refillQty}`)
   return new MachineRefillEvent(refillQty, randomMachine());
 }
 
@@ -155,9 +166,19 @@ const eventGenerator = (): IEvent => {
   pubSubService.subscribe('sale', saleSubscriber);
   pubSubService.subscribe('refill', refillSubscriber);
 
-  // create 5 random events
-  const events = [1,2,3,4,5].map(i => eventGenerator());
+  // create random events
+  const events = [1,2,3].map(i => eventGenerator());
 
   // publish the events
-  events.map(events => pubSubService.publish(events));
+  events.map(pubSubService.publish);
+
+  // try unsubscribing
+  pubSubService.unsubscribe('refill', refillSubscriber);
+
+  // create random events
+  const events2 = [1,2,3].map(i => eventGenerator());
+
+  // publish the events (there should be no refill handler events here)
+  events2.map(pubSubService.publish);
+
 })();

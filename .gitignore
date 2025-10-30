@@ -1,0 +1,12 @@
+# Node modules
+node_modules/
+
+# Typescript output
+dist/
+*.js
+*.js.map
+*.d.ts 
+*.d.ts.map
+
+.vs_code
+.DS_Store
