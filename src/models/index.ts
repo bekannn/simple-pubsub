@@ -6,7 +6,7 @@ export enum EventType {
 }
 
 export const STOCK_THRESHOLD: number = 3;
-export const STOCK_MAX_LEVELL: number = 10;
+export const STOCK_MAX_LEVEL: number = 10;
 
 export interface IEvent {
     type(): EventType;
@@ -34,18 +34,17 @@ export class Machine {
     public stockLevel = 10;
     public id: string;
     public warned: boolean = false;
-    public announceOk: boolean = false;
   
     constructor (id: string) {
       this.id = id;
     }
 
     public soldItem(qty: number): void {
-        this.stockLevel = Math.max(this.stockLevel - qty, 0); // prevent negative stock number
+        this.stockLevel = this.stockLevel - qty; // prevent negative stock number
     }
 
     public refillItem(qty: number): void {
-        this.stockLevel = Math.min(this.stockLevel + qty, STOCK_MAX_LEVELL); // prevent overfilling
+        this.stockLevel = Math.min(this.stockLevel + qty, STOCK_MAX_LEVEL); // prevent overfilling
     }
   
 }

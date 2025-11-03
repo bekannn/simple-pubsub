@@ -1,7 +1,6 @@
 import { IEvent, ISubscriber, Machine, IPublishSubscribeService, STOCK_THRESHOLD } from "../models";
 import { StockWarningEvent } from "../events/StockWarningEvent";
 import { StockLevelOkEvent } from "../events/StockLevelOkEvent";
-import { MachineRefillEvent } from "../events/RefillEvent";
 import { MachineRepository } from "../models/MachineRepository";
 
 export class StockLevelSubscriber implements ISubscriber {
@@ -18,17 +17,14 @@ export class StockLevelSubscriber implements ISubscriber {
         if (!machine) return;
 
         if (machine.stockLevel < STOCK_THRESHOLD && !machine.warned) {
+            console.log(`[WARNING] Machine #${machine.id} stock level dropped to ${machine.stockLevel}!`);
             this.pubsub.publish(new StockWarningEvent(machine.id));
 
-            const refillQty = 10 - machine.stockLevel; // when the stock falls below threshold of 3, refill back to full (10)
-            this.pubsub.publish(new MachineRefillEvent(refillQty, machine.id));
-
             machine.warned = true;
-            machine.announceOk = false;
-        } else if (machine.stockLevel >= STOCK_THRESHOLD && !machine.announceOk) {
+        } else if (machine.stockLevel >= STOCK_THRESHOLD && machine.warned) {
+            console.log(`[OK] Machine #${machine.id} stock level is ${machine.stockLevel}.`);
             this.pubsub.publish(new StockLevelOkEvent(machine.id));
 
-            machine.announceOk = true;
             machine.warned = false;
         }
     }

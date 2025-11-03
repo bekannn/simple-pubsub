@@ -13,7 +13,7 @@ export class MachineRepository implements IMachineRepository {
 
     saveMachine(machine: Machine): void {
         if (this.machines.has(machine.id)) {
-            console.log(`[DUPLICATE_MACHINE] Machine id #${machine.id} already exists.`);
+            console.warn(`[DUPLICATE_MACHINE] Machine id #${machine.id} already exists.`);
             return;
         }
         this.machines.set(machine.id, machine);
@@ -21,7 +21,7 @@ export class MachineRepository implements IMachineRepository {
 
     deleteMachine(machine: Machine): void {
         if (!this.machines.has(machine.id)) {
-            console.log(`[MACHINE_NOT_FOUND] Cannot delete machine id #${machine.id} since it is not found`);
+            console.warn(`[MACHINE_NOT_FOUND] Cannot delete machine id #${machine.id} since it is not found`);
             return;
         }
         this.machines.delete(machine.id);

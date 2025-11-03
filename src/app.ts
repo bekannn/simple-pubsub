@@ -6,6 +6,7 @@ import { MachineRefillSubscriber } from "./subcribers/RefillSubscriber";
 import { PublishSubscribeService } from "./services/PublishSubscribeService";
 import { StockLevelSubscriber } from "./subcribers/StockLevelSubscriber";
 import { MachineRepository } from "./models/MachineRepository";
+import { LowStockWarningSubscriber } from "./subcribers/LowStockWarningSubscriber";
 
 // helpers
 const randomMachine = (): string => {
@@ -50,12 +51,16 @@ const eventGenerator = (): IEvent => {
 
   const stockSubscriber = new StockLevelSubscriber(machineRepository, pubSubService);
 
+  const lowStockWarningSubscriber = new LowStockWarningSubscriber(machineRepository, pubSubService);
+
  
   pubSubService.subscribe(EventType.SALE, saleSubscriber);
   pubSubService.subscribe(EventType.REFILL, refillSubscriber);
   pubSubService.subscribe(EventType.SALE, stockSubscriber);
   pubSubService.subscribe(EventType.REFILL, stockSubscriber);
+  pubSubService.subscribe(EventType.LEVEL_WARNING, lowStockWarningSubscriber);
 
+  // Try duplicate subscribings
   pubSubService.subscribe(EventType.REFILL, refillSubscriber);
 
 
@@ -66,10 +71,10 @@ const eventGenerator = (): IEvent => {
   events.map(pubSubService.publish);
 
   // try unsubscribing
-  //pubSubService.unsubscribe(EventType.REFILL, refillSubscriber);
+  pubSubService.unsubscribe(EventType.REFILL, refillSubscriber);
 
   // create random events
-  const events2 = [1,2,3,4,5].map(i => eventGenerator());
+  const events2 = [1,2,3,4].map(i => eventGenerator());
 
   // publish the events (there should be no refill handler events here)
   events2.map(pubSubService.publish);
