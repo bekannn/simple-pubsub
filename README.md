@@ -29,6 +29,17 @@ Install npm (Node Package Manager)
 ```bash
 npm install
 ```
+
+Setup TypeScript and Jest
+```bash
+npm install --save-dev typescript ts-node
+npm install --save-dev jest @types/jest ts-jest
+```
+Initialize Jest for Typescript
+```bash
+npx ts-jest config:init
+```
+
 Run the project
 ```bash
 npm run start
