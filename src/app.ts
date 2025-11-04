@@ -61,7 +61,7 @@ const eventGenerator = (): IEvent => {
   pubSubService.subscribe(EventType.LEVEL_WARNING, lowStockWarningSubscriber);
 
   // Try duplicate subscribings
-  pubSubService.subscribe(EventType.REFILL, refillSubscriber);
+  // pubSubService.subscribe(EventType.REFILL, refillSubscriber);
 
 
   // create random events
@@ -71,7 +71,7 @@ const eventGenerator = (): IEvent => {
   events.map(pubSubService.publish);
 
   // try unsubscribing
-  pubSubService.unsubscribe(EventType.REFILL, refillSubscriber);
+  // pubSubService.unsubscribe(EventType.REFILL, refillSubscriber);
 
   // create random events
   const events2 = [1,2,3,4].map(i => eventGenerator());

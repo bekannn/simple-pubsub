@@ -1,4 +1,44 @@
-Instructions
+# PubSub Project
+The project implemented a simple publish-subscribe mechanism for handling machine sell and stock level updates.
+
+### Main Service
+Publish-Subscribe service: 
+- Publish: Generates publication of events to the event subscriber
+- Subscribe: Subscribes the event handler to a specific event
+- Unsubscribe: Remove an event handler from the list of event's subscriber
+
+### Events
+- Sale Event: Triggered when there is a sale at a specific machine
+- Refill Event: Triggered to add stock to the machine
+- Stock Warning Event: Issued when a machine's stock level drops below the threshold (3)
+- Stock Ok Event: Issued when a previously warned machine's stock level rises back to or above the threshold
+
+### Event Handlers
+- Sale Event Subscriber: Subscribes to sale event and handles the stock deduction from the machine
+- Refill Event Subsriber: Subscribes to refill event and handles the refill process to the machine
+- Stock Level Subsriber: Subscribe to both sale and refill event and triggers warning or announcement events
+- Low Stock Warning Subscriber: Subscribes to stock warning event and automatically triggers a refill event
+
+## Installation
+Clone the git repository
+```bash
+git clone git@github.com:bekannn/simple-pubsub.git
+cd simple-pubsub
+```
+Install npm (Node Package Manager)
+```bash
+npm install
+```
+Run the project
+```bash
+npm run start
+```
+
+Run the test
+```bash
+npm run test
+```
+## Instructions
 1. Build the Publish-Subscribe mechanism. Allow ISubscriber objects to register against an concrete IPublishSubscribeService object for an event type. Implement the publish method so that when a publish event occurs, all subscribers of that the event type published will have a chance to handle the event. The subscribers should be working off a shared array of Machine objects, mutating them depending on the event received.
 2. Now add the method 'unsubscribe' on IPublishSubscribeService to allow handlers to unsubscribe from events. You may change the existing method signatures.
 3. Implement MachineRefillSubscriber. It will increase the stock quantity of the machine.
